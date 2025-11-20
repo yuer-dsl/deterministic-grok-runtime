@@ -1,5 +1,3 @@
-# deterministic-grok-runtime
- A minimal deterministic runtime for Grok-1 with static plan compiler &amp; reproducibility test.
 # deterministic-grok-runtime  
 **Make Grok-1 deterministic.**  
 A static reasoning-chain compiler that turns Grok-1 into a fully reproducible execution pipeline.
