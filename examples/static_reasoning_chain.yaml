@@ -1,0 +1,67 @@
+# Demonstration: Static 5-step reasoning chain.
+# NOT financial advice. This is a reproducibility demo only.
+
+task_id: btc_150k_scenario_demo
+description: >
+  Five-step example reasoning chain exploring a hypothetical BTC 150k scenario.
+  Purely illustrative. Not financial advice.
+
+inputs:
+  - name: current_date
+  - name: current_price_usd
+
+reasoning_chain:
+  - id: step1_factors
+    type: llm_call
+    llm_call:
+      model: grok-1
+      prompt: |
+        List 8 key macro/on-chain factors that could influence BTC.
+        Output JSON only.
+      temperature: 0.0
+      max_tokens: 512
+
+  - id: step2_scoring
+    type: llm_call
+    depends_on: [step1_factors]
+    llm_call:
+      model: grok-1
+      prompt_template: |
+        Score each factor 1-5 for impact and likelihood.
+        Factors: {step1_factors_output}
+        Output JSON only.
+      temperature: 0.0
+      max_tokens: 512
+
+  - id: step3_aggregation
+    type: tool_call
+    depends_on: [step2_scoring]
+    tool_call:
+      name: aggregate_scores
+      args:
+        input_from: step2_scoring_output
+        impact_weight: 0.6
+        likelihood_weight: 0.4
+
+  - id: step4_narrative
+    type: llm_call
+    depends_on: [step3_aggregation]
+    llm_call:
+      model: grok-1
+      prompt_template: |
+        Using scores: {step3_aggregation_output}
+        Write a 3-paragraph narrative (not advice).
+      temperature: 0.0
+      max_tokens: 800
+
+  - id: step5_risks
+    type: llm_call
+    depends_on: [step4_narrative]
+    llm_call:
+      model: grok-1
+      prompt_template: |
+        List 8 risks that could invalidate the scenario:
+        {step4_narrative_output}
+        Output bullet points + disclaimer.
+      temperature: 0.0
+      max_tokens: 400
